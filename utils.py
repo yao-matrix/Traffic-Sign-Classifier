@@ -9,7 +9,8 @@ from imgaug import augmenters as iaa
 ######                                        Plot utility functions                                              ######
 ########################################################################################################################
 
- 
+
+
 def plot_results(metrics, axis, lbs, xlb, ylb,  title, fig_size=(7, 5), epochs_interval=10):
     """
     Nifty utility function to plot results of the execution of our model
@@ -26,7 +27,7 @@ def plot_results(metrics, axis, lbs, xlb, ylb,  title, fig_size=(7, 5), epochs_i
     ax.xaxis.set_ticks(np.linspace(1, total_epochs, num=int(total_epochs/epochs_interval), dtype=np.int32))
     ax.legend(loc='lower right')
     plt.show()
-    
+
 def plot_model_results(metrics, axes, lbs, xlb, ylb, titles, fig_title, fig_size=(7, 5), epochs_interval=10):
     """
     Nifty utility function to plot results of the execution of our model
@@ -48,8 +49,6 @@ def plot_model_results(metrics, axes, lbs, xlb, ylb, titles, fig_title, fig_size
     
     plt.suptitle(fig_title, fontsize=14, fontweight='bold')
     plt.show()
-    
-  
 
 def show_image_list(img_list, img_labels, title, cols=2, fig_size=(15, 15), show_ticks=True):
     """
@@ -92,13 +91,11 @@ def show_random_dataset_images(group_label, imgs, to_show=5):
         selected_img = list(map(lambda img_id: imgs[img_id], selected_rows['img_id']))
         selected_labels = list(map(lambda label_id: label_id, selected_rows['label_id']))
         show_image_list(selected_img, selected_labels, "{0}: {1}".format(lid, lbl), cols=to_show, fig_size=(7, 7), show_ticks=False)
-    
-    
+
 ########################################################################################################################
 ######                                        Data manipulation functions                                         ######
 ########################################################################################################################
-    
-    
+
 def group_img_id_to_lbl(lbs_ids, lbs_names):    
     """
     Utility function to group images by label 
@@ -118,8 +115,6 @@ def group_img_id_to_lb_count(img_id_to_lb):
     """
     return pd.pivot_table(img_id_to_lb,index=["label_id","label_name"],values=["img_id"], aggfunc='count')
 
-
-        
 
 def create_sample_set(grouped_imgs_by_label, imgs, labels, pct=0.4):
     """
@@ -158,7 +153,6 @@ def normalise_images(imgs, dist):
     return (imgs - mean) / std
 
 
-
 def to_grayscale(img):
     """
     Converts an image in RGB format to grayscale
@@ -179,10 +173,11 @@ def augment_imgs(imgs, p):
               iaa.Affine(shear=(-10, 10)) # shear by -10 to +10 degrees
           ])
 
-    
+
     seq = iaa.Sequential([iaa.Sometimes(p, augs)])
     
     return seq.augment_images(imgs)
+
 
 def augment_imgs_until_n(imgs, n, p):
     """
@@ -197,5 +192,3 @@ def augment_imgs_until_n(imgs, n, p):
         aug_imgs = augs if len(aug_imgs) == 0 else np.concatenate((aug_imgs, augs))
     
     return aug_imgs[0 : n]
-
-
