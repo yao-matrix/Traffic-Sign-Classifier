@@ -78,7 +78,6 @@ def show_image_list(img_list, img_labels, title, cols=2, fig_size=(15, 15), show
     
     return
 
-
 def show_random_dataset_images(group_label, imgs, to_show=5):
     """
     This function takes a DataFrame of items group by labels as well as a set of images and randomly selects to_show images to display
@@ -113,7 +112,7 @@ def group_img_id_to_lb_count(img_id_to_lb):
     """
     Returns a pivot table table indexed by label id and label name, where the aggregate function is count
     """
-    return pd.pivot_table(img_id_to_lb,index=["label_id","label_name"],values=["img_id"], aggfunc='count')
+    return pd.pivot_table(img_id_to_lb, index=["label_id","label_name"], values=["img_id"], aggfunc='count')
 
 
 def create_sample_set(grouped_imgs_by_label, imgs, labels, pct=0.4):
@@ -144,7 +143,7 @@ def create_sample_set(grouped_imgs_by_label, imgs, labels, pct=0.4):
 
 def normalise_images(imgs, dist):
     """
-    Nornalise the supplied images from data in dist
+    Normalise the supplied images from data in dist
     """
     std = np.std(dist)
     #std = 128
