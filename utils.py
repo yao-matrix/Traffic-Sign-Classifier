@@ -9,20 +9,18 @@ from imgaug import augmenters as iaa
 ######                                        Plot utility functions                                              ######
 ########################################################################################################################
 
-
-
 def plot_results(metrics, axis, lbs, xlb, ylb,  title, fig_size=(7, 5), epochs_interval=10):
     """
     Nifty utility function to plot results of the execution of our model
     """
     fig, ax = plt.subplots(figsize=fig_size)
-    
+
     total_epochs = metrics[0].shape[0]
     x_values = np.linspace(1, total_epochs, num=total_epochs, dtype=np.int32)
-    
+
     for m, l in zip(metrics, lbs):
         ax.plot(line1 = ax.plot(x_values, m[:, axis], linewidth=2, label=l))
-    
+
     ax.set(xlabel=xlb, ylabel=ylb, title=title)
     ax.xaxis.set_ticks(np.linspace(1, total_epochs, num=int(total_epochs/epochs_interval), dtype=np.int32))
     ax.legend(loc='lower right')
@@ -34,10 +32,10 @@ def plot_model_results(metrics, axes, lbs, xlb, ylb, titles, fig_title, fig_size
     """
     fig, axs = plt.subplots(nrows=1, ncols=len(axes), figsize=fig_size)
     print("Length of axis: {0}".format(axs.shape))
-    
+
     total_epochs = metrics[0].shape[0]
     x_values = np.linspace(1, total_epochs, num=total_epochs, dtype=np.int32)
-    
+
     for m, l in zip(metrics, lbs):
         for i in range(0, len(axes)):
             ax = axs[i]
@@ -46,7 +44,7 @@ def plot_model_results(metrics, axes, lbs, xlb, ylb, titles, fig_title, fig_size
             ax.set(xlabel=xlb[i], ylabel=ylb[i], title=titles[i])
             ax.xaxis.set_ticks(np.linspace(1, total_epochs, num=int(total_epochs/epochs_interval), dtype=np.int32))
             ax.legend(loc='center right')
-    
+
     plt.suptitle(fig_title, fontsize=14, fontweight='bold')
     plt.show()
 
@@ -59,23 +57,23 @@ def show_image_list(img_list, img_labels, title, cols=2, fig_size=(15, 15), show
     cmap = None
 
     fig, axes = plt.subplots(rows, cols, figsize=fig_size)
-    
+
     for i in range(0, img_count):
         img_name = img_labels[i]     
         img = img_list[i]
         if len(img.shape) < 3 or img.shape[-1] < 3:
             cmap = "gray"
             img = np.reshape(img, (img.shape[0], img.shape[1]))
-        
+
         if not show_ticks:            
             axes[i].axis("off")
-            
+
         axes[i].imshow(img, cmap=cmap)
-    
+
     fig.suptitle(title, fontsize=12, fontweight='bold', y = 0.6)
     fig.tight_layout()
     plt.show()
-    
+
     return
 
 def show_random_dataset_images(group_label, imgs, to_show=5):
@@ -83,13 +81,15 @@ def show_random_dataset_images(group_label, imgs, to_show=5):
     This function takes a DataFrame of items group by labels as well as a set of images and randomly selects to_show images to display
     """
     for (lid, lbl), group in group_label:
-        #print("[{0}] : {1}".format(lid, lbl))    
+        # print("[{0}] : {1}".format(lid, lbl))
         rand_idx = np.random.randint(0, high=group['img_id'].size, size=to_show, dtype='int')
         selected_rows = group.iloc[rand_idx]
 
         selected_img = list(map(lambda img_id: imgs[img_id], selected_rows['img_id']))
         selected_labels = list(map(lambda label_id: label_id, selected_rows['label_id']))
         show_image_list(selected_img, selected_labels, "{0}: {1}".format(lid, lbl), cols=to_show, fig_size=(7, 7), show_ticks=False)
+
+
 
 ########################################################################################################################
 ######                                        Data manipulation functions                                         ######
@@ -104,16 +104,14 @@ def group_img_id_to_lbl(lbs_ids, lbs_names):
         label_id = lbs_ids[i]
         label_name = lbs_names[lbs_names["ClassId"] == label_id]["SignName"].values[0]
         arr_map.append({"img_id": i, "label_id": label_id, "label_name": label_name})
-    
-    return pd.DataFrame(arr_map)
 
+    return pd.DataFrame(arr_map)
 
 def group_img_id_to_lb_count(img_id_to_lb):
     """
     Returns a pivot table table indexed by label id and label name, where the aggregate function is count
     """
-    return pd.pivot_table(img_id_to_lb, index=["label_id","label_name"], values=["img_id"], aggfunc='count')
-
+    return pd.pivot_table(img_id_to_lb, index=["label_id", "label_name"], values=["img_id"], aggfunc='count')
 
 def create_sample_set(grouped_imgs_by_label, imgs, labels, pct=0.4):
     """
@@ -136,6 +134,7 @@ def create_sample_set(grouped_imgs_by_label, imgs, labels, pct=0.4):
 
     return (X_sample, y_sample)
 
+
 ########################################################################################################################
 ######                                        Image processing functions                                          ######
 ########################################################################################################################
@@ -146,18 +145,16 @@ def normalise_images(imgs, dist):
     Normalise the supplied images from data in dist
     """
     std = np.std(dist)
-    #std = 128
+    # std = 128
     mean = np.mean(dist)
-    #mean = 128
+    # mean = 128
     return (imgs - mean) / std
-
 
 def to_grayscale(img):
     """
     Converts an image in RGB format to grayscale
     """
     return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
 
 def augment_imgs(imgs, p):
     """
@@ -174,20 +171,18 @@ def augment_imgs(imgs, p):
 
 
     seq = iaa.Sequential([iaa.Sometimes(p, augs)])
-    
-    return seq.augment_images(imgs)
 
+    return seq.augment_images(imgs)
 
 def augment_imgs_until_n(imgs, n, p):
     """
     Takes care of augmenting images with a probability p, until n augmentations have been created
     """
-
     i = 0
     aug_imgs = []
     while i < n:
         augs = augment_imgs(imgs, p)
         i += len(augs)
         aug_imgs = augs if len(aug_imgs) == 0 else np.concatenate((aug_imgs, augs))
-    
+
     return aug_imgs[0 : n]
